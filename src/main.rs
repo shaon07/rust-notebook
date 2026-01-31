@@ -1,25 +1,39 @@
-use std::io;
-
 fn main() {
-    let array: [i32; 5] = [10, 20, 30, 40, 50];
-    let mut access_index = String::new();
+    let x: i32 = 5;
 
-    println!("Enter an index to access (0-4):");
-    io::stdin()
-        .read_line(&mut access_index)
-        .expect("there was a problem while taking the buffter input");
+    println!("The value of x is: {x}");
 
-    let access_index: i32 = match access_index.trim().parse() {
-        Ok(num) => num,
-        Err(e) => {
-            eprintln!("Invalid input: {}", e);
-            return;
-        }
-    };
+    hello();
 
-    if access_index < 0 || access_index >= (array.len() as i32) {
-        eprintln!("Index out of bounds. Please enter a valid index between 0 and 4.");
-    } else {
-        println!("Element at index {}: {}", access_index, array[access_index as usize]);
+    let sum: i32 = add(10, 20);
+    println!("The sum of 10 and 20 is: {sum}");
+
+    // Nested function example
+    fn nested_function() {
+        println!("This is a nested function!");
     }
+
+    nested_function();
 }
+
+// Global functions
+// this is a regular function
+fn hello() {
+    println!("Hello, world!");
+}
+
+// this is a function with parameters and a explicit return value
+fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+
+// alternatively, you can omit the 'return' keyword for the last expression. BUT BE CAREFUL WITH THE SEMICOLON! (if you put a semicolon, it becomes a statement and returns nothing)
+// Right way:
+// fn add(a: i32, b: i32) -> i32 {
+//     a + b
+// }
+
+// Wrong way:
+// fun add(a: i32, b:i32) -> i32 {
+// a+ b; // this will cause a compile-time error because the function returns nothing
+// }
