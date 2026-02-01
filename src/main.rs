@@ -1,93 +1,72 @@
 fn main() {
-    println!("This is simple Rus code for learning if else and loops.");
+    let s1 = String::from("Hello");
+    println!("{s1}");
+    let s2 = s1;
+    println!("{s2}");
 
-    // Example of if-else statement
-    let number: i32 = 7;
+    // the following s1 will not works bcoz the s1 ownership is moved to s2.
+    //println!("{s1}");
 
-    if number < 10 {
-        println!("The number is less than 10.");
-    } else {
-        println!("The number is 10 or greater.");
-    }
+    // in rust their are two type of mamory allocation
+    // 1. is in Stack -> the fixed size variables. like int, array, tuples,
+    // 2. is in Heap -> unknown size. like this this string.
+    // so every variables are store in heap need to manage their ownership
 
-    // Example of multiple conditions
-    if number % 2 == 0 {
-        println!("The number is even.");
-    } else if number % 2 != 0 {
-        println!("The number is odd.");
-    } else {
-        println!("This case will never happen.");
-    }
+    // fixed size example
+    let num1: i32 = 10;
+    let num2: i32 = num1;
 
-    // example of inline if-else (ternary operator style)
-    let even_or_odd: &str = if number % 2 == 0 { "Even" } else { "Odd" };
-    // must remember that the if-else expression must return the same type in both branches
-    // WRONG WAY: let even_or_odd: &str = if number % 2 == 0 {"Even"} else {123}; // this will cause a compile-time error
-    println!("The {number} is {even_or_odd} value.");
+    println!("Num1: {num1}");
+    println!("Num2: {num2}");
 
-    // Example of a loop
-    let mut count: i32 = 0;
-    while count < 5 {
-        println!("Count value: {count}");
-        count += 1;
-    }
+    let x: i32 = 5;
+    let y: i32 = x;
 
-    // Example of a loop
-    let mut counter: i32 = 0;
-    loop {
-        counter += 1;
-        println!("The counter value is: {counter}");
-        if counter >= 10 {
-            break;
-        }
-    }
+    println!("x = {x}, y = {y}");
+    // this works becouse fixed size variables no need ownership.
 
-    // Example of a loop with return value
-    let mut loop_counter: i32 = 0;
-    let result: i32 = loop {
-        loop_counter += 1;
-        if loop_counter == 10 {
-            break loop_counter * 2;
-        }
-    };
-    println!("The result from the loop is: {result}");
+    // but for String it store in heap. so mamory management need to handler by the rust compilers. so it uses ownership.
 
-    // Example of a labeled loop
-    let mut outer_count: i32 = 0;
-    'outer_loop: loop {
-        println!("Outer loop count: {outer_count}");
-        let mut inner_count: i32 = 0;
-        loop {
-            println!("  Inner loop count: {inner_count}");
-            if inner_count >= 5 {
-                break;
-            }
-            if outer_count >= 5 {
-                break 'outer_loop;
-            }
-            inner_count += 1;
-        }
-        outer_count += 1;
-    }
+    // to avoid the owership we can use clone method to take the values not the ownership. but it expensive but neccesary in certain conditions.
 
-    // Example of a for loop
-    let array: [i32; 5] = [10, 20, 30, 40, 50];
-    for item in array {
-        println!("Value is {item}");
-    }
+    let s3 = String::from("Hi");
+    println!("{s3}");
+    let s4 = s3.clone();
+    println!("{s4}");
 
-    // Example of a for loop with a range
-    for number in 1..6 {
-        println!("Number in range: {number}");
-    }
+    // now we can update each variables value indepently. like:
+    let mut s5 = s4.clone();
+    s5.push_str(" how are you");
+    println!("{s5}");
 
-    // Example of a for loop with a range including the end
-    for number in 1..=5 {
-        println!("Number in inclusive range: {number}");
-    }
+    // another way to take ownsership in functions:
+    let name = String::from("Bangladesh");
+    take_ownsership(name); // now the name ownership in moved to the take_ownsership functions. so we cant use the name after the function call.
 
-    // Example of range with utils functions from standard library
-    for number in (1..=10).rev() {
-        println!("Reversed number in range: {number}");
-    }
+    // here we cant use name variables. coz it no longer available here.
+    // println!("{name}"); this line of code will throw error.
+
+    let my_custom_name = String::from("Shaon");
+    let my_custom_name = take_and_give_ownership(my_custom_name);
+    println!("My custom name is: {my_custom_name}");
+
+    let s6 = String::from("Hello, world!");
+    let (s7, len) = calculate_length(s6);
+    println!("The length of '{}' is {}.", s7, len);
+}
+
+fn take_ownsership(name: String) {
+    println!("{name}");
+}
+
+fn take_and_give_ownership(name: String) -> String {
+    let custom_name = name + " from Bangladesh";
+    println!("This is custom name: {custom_name}");
+    return custom_name;
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len(); // len() returns the length of a String
+
+    return (s, length);
 }
