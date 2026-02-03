@@ -1,72 +1,130 @@
+// rust_ownership_borrowing_cheatsheet.rs
+// Quick reference – the most important patterns you forget after 2 weeks
+
 fn main() {
-    let s1 = String::from("Hello");
-    println!("{s1}");
-    let s2 = s1;
-    println!("{s2}");
+    println!("=== 1. MOVE (transfers ownership) ===");
+    move_example();
 
-    // the following s1 will not works bcoz the s1 ownership is moved to s2.
-    //println!("{s1}");
+    println!("\n=== 2. IMMUTABLE BORROW (&) – many readers allowed ===");
+    immutable_borrow_example();
 
-    // in rust their are two type of mamory allocation
-    // 1. is in Stack -> the fixed size variables. like int, array, tuples,
-    // 2. is in Heap -> unknown size. like this this string.
-    // so every variables are store in heap need to manage their ownership
+    println!("\n=== 3. MUTABLE BORROW (&mut) – one writer at a time ===");
+    mutable_borrow_example();
 
-    // fixed size example
-    let num1: i32 = 10;
-    let num2: i32 = num1;
+    println!("\n=== 4. MOVE + try to use again = classic error ===");
+    move_and_use_after_error();
 
-    println!("Num1: {num1}");
-    println!("Num2: {num2}");
+    println!("\n=== 5. Common fix patterns ===");
+    common_fix_patterns();
 
-    let x: i32 = 5;
-    let y: i32 = x;
-
-    println!("x = {x}, y = {y}");
-    // this works becouse fixed size variables no need ownership.
-
-    // but for String it store in heap. so mamory management need to handler by the rust compilers. so it uses ownership.
-
-    // to avoid the owership we can use clone method to take the values not the ownership. but it expensive but neccesary in certain conditions.
-
-    let s3 = String::from("Hi");
-    println!("{s3}");
-    let s4 = s3.clone();
-    println!("{s4}");
-
-    // now we can update each variables value indepently. like:
-    let mut s5 = s4.clone();
-    s5.push_str(" how are you");
-    println!("{s5}");
-
-    // another way to take ownsership in functions:
-    let name = String::from("Bangladesh");
-    take_ownsership(name); // now the name ownership in moved to the take_ownsership functions. so we cant use the name after the function call.
-
-    // here we cant use name variables. coz it no longer available here.
-    // println!("{name}"); this line of code will throw error.
-
-    let my_custom_name = String::from("Shaon");
-    let my_custom_name = take_and_give_ownership(my_custom_name);
-    println!("My custom name is: {my_custom_name}");
-
-    let s6 = String::from("Hello, world!");
-    let (s7, len) = calculate_length(s6);
-    println!("The length of '{}' is {}.", s7, len);
+    println!("\n=== 6. Clone when you really need two copies ===");
+    clone_example();
 }
 
-fn take_ownsership(name: String) {
-    println!("{name}");
+// ────────────────────────────────────────────────
+// 1. MOVE – function takes ownership → original variable dies
+// ────────────────────────────────────────────────
+fn move_example() {
+    let s1 = String::from("hello");
+
+    takes_ownership(s1); // s1 is MOVED → invalid after this line
+
+    // println!("{}", s1);         // error[E0382]: borrow of moved value
 }
 
-fn take_and_give_ownership(name: String) -> String {
-    let custom_name = name + " from Bangladesh";
-    println!("This is custom name: {custom_name}");
-    return custom_name;
+fn takes_ownership(s: String) {
+    println!("took ownership: {}", s);
+} // ← s dropped here → memory freed
+
+// ────────────────────────────────────────────────
+// 2. IMMUTABLE BORROW – many & at the same time is OK
+// ────────────────────────────────────────────────
+fn immutable_borrow_example() {
+    let s = String::from("immutable example");
+
+    print_ref(&s);
+    print_ref(&s);
+    print_ref(&s);
+    println!("still alive: {}", s); // owner can still use it
 }
 
-fn calculate_length(s: String) -> (String, usize) {
-    let length = s.len(); // len() returns the length of a String
+fn print_ref(s: &String) {
+    println!("borrowed: {}", s);
+    // s.push_str("...");              // error – cannot mutate through &T
+}
 
-    return (s, length);
+// ────────────────────────────────────────────────
+// 3. MUTABLE BORROW – only ONE &mut at a time
+// ────────────────────────────────────────────────
+fn mutable_borrow_example() {
+    let mut s = String::from("mutable");
+
+    add_suffix(&mut s);
+    println!("after 1st: {}", s);
+
+    add_suffix(&mut s); // second &mut is OK – previous one ended
+    println!("after 2nd: {}", s);
+
+    // let r1 = &mut s;
+    // let r2 = &mut s;                 // error – cannot have two &mut
+    // r1.push_str("A");
+    // r2.push_str("B");
+}
+
+fn add_suffix(s: &mut String) {
+    s.push_str(" world!");
+}
+
+// ────────────────────────────────────────────────
+// 4. Classic beginner error – move then use
+// ────────────────────────────────────────────────
+fn move_and_use_after_error() {
+    let mut s = String::from("error demo");
+
+    takes_ownership(s); // ← move happened
+
+    // s.push_str("!!!");              // error[E0382]: use of moved value
+    // println!("{}", s);
+}
+
+// ────────────────────────────────────────────────
+// 5. Two most common fixes for the error above
+// ────────────────────────────────────────────────
+fn common_fix_patterns() {
+    println!("Fix A – borrow instead of move");
+    let mut s = String::from("fix A");
+    mutate_via_borrow(&mut s);
+    mutate_via_borrow(&mut s);
+    println!("→ still works: {}", s);
+
+    println!("\nFix B – take & give back (pass & return)");
+    let mut s2 = String::from("fix B");
+    s2 = mutate_and_return(s2);
+    s2 = mutate_and_return(s2);
+    println!("→ still works: {}", s2);
+}
+
+fn mutate_via_borrow(s: &mut String) {
+    s.push_str(" (borrowed)");
+}
+
+fn mutate_and_return(mut s: String) -> String {
+    s.push_str(" (returned)");
+    s // ← ownership goes back to caller
+}
+
+// ────────────────────────────────────────────────
+// 6. When you really need two independent values → clone
+// ────────────────────────────────────────────────
+fn clone_example() {
+    let original = String::from("important data");
+
+    let copy1 = original.clone();
+    let copy2 = original.clone();
+
+    println!("original: {}", original);
+    println!("copy1:    {}", copy1);
+    println!("copy2:    {}", copy2);
+
+    // All three strings exist independently now
 }
