@@ -85,6 +85,20 @@ fn main() {
     show_amount(Coin::Nickel);
     show_amount(Coin::Penny);
     show_amount(Coin::Quarter);
+
+    let dice = 6;
+
+    match dice {
+        3 => {
+            println!("You just get half bonus");
+        }
+        6 => {
+            println!("Hurray!. you get a bonus roll");
+        }
+        _ => {
+            println!("Next move");
+        }
+    }
 }
 
 fn route(ip: IpAddress) {
