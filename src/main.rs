@@ -99,6 +99,12 @@ fn main() {
             println!("Next move");
         }
     }
+
+    let bonus: Option<i32> = Some(200);
+
+    if let Some(num) = bonus {
+        println!("You got new bonus {num}");
+    }
 }
 
 fn route(ip: IpAddress) {
