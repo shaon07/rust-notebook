@@ -1,39 +1,109 @@
-struct ReactAngle {
-    width: u32,
-    height: u32,
+#[derive(Debug)]
+enum IpKind {
+    V4,
+    V6,
 }
 
-impl ReactAngle {
-    // in methods first param will be by default self.
-    fn area(&self) -> u32 {
-        return self.width * self.height;
-    }
+#[derive(Debug)]
+struct IpAddress {
+    version: IpKind,
+    address: String,
+    domain: String,
+}
 
-    // now lets take others params
-    fn area_with_unit(&self, unit: &str) -> u32 {
-        let area: u32 = self.height * self.height;
-        println!("The Area of the reactangle is {}{}", area, unit);
-        return area;
+#[derive(Debug)]
+enum Message {
+    Quit,
+    Move {
+        x: i32,
+        y: i32,
+    },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+
+impl Message {
+    fn start(&self) {
+        match self {
+            Message::Quit => { println!("Process has been stopped") }
+            Message::Write(input) => { println!("Output is {input}") }
+            Message::ChangeColor(r, g, b) => {
+                println!("Color has been set to R={}, G={}, B={}", r, g, b)
+            }
+            Message::Move { x, y } => { println!("Pointer moved to position X={} and Y={}", x, y) }
+        }
     }
 }
 
-struct Square {
-    width: u32,
-    height: u32,
-}
-
-impl Square {
-    // Associated Functions. its use to do something with the struct itself. and return Self type
-    fn create(size: u32) -> Self {
-        Self { width: size, height: size }
-    }
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
 }
 
 fn main() {
-    let rect_1: ReactAngle = ReactAngle { width: 40, height: 60 };
-    println!("The area of the reactangle is {}", rect_1.area());
-    rect_1.area_with_unit("KM");
+    let google: IpAddress = IpAddress {
+        address: String::from("127.0.0.7"),
+        version: IpKind::V4,
+        domain: String::from("google.com"),
+    };
+    route(google);
 
-    let sq: Square = Square::create(10);
-    println!("The Dimension of the Square is width:{} and height:{}", sq.width, sq.height);
+    let microsoft: IpAddress = IpAddress {
+        address: String::from("168.12.14.16"),
+        version: IpKind::V6,
+        domain: String::from("microsoft.com"),
+    };
+
+    route(microsoft);
+
+    let message_1: Message = Message::Write(String::from("Hello world"));
+    let message_2: Message = Message::ChangeColor(125, 54, 64);
+    let message_3: Message = Message::Move { x: 120, y: 220 };
+    let message_4: Message = Message::Quit;
+    message_1.start();
+    message_2.start();
+    message_3.start();
+    message_4.start();
+
+    let bonus: Option<i32> = Some(100);
+    let amount: i32 = 100;
+    // cant resolve the oparation coz bonus may be not preset
+    // println!("Total amount is {}", amount + bonus);
+
+    match bonus {
+        Some(bonus) => {
+            println!("Total amount is {}", amount + bonus);
+        }
+        None => {
+            println!("Total amount is {amount}");
+        }
+    }
+
+    show_amount(Coin::Dime);
+    show_amount(Coin::Nickel);
+    show_amount(Coin::Penny);
+    show_amount(Coin::Quarter);
+}
+
+fn route(ip: IpAddress) {
+    println!(
+        "Request are forwarding to {:?} with version {:?} and the domain is {:?}",
+        ip.address,
+        ip.version,
+        ip.domain
+    );
+}
+
+fn show_amount(coin: Coin) -> u8 {
+    match coin {
+        Coin::Dime => 1,
+        Coin::Nickel => { 10 }
+        Coin::Penny => 100,
+        Coin::Quarter => {
+            println!("This is the quater bonus");
+            return 250;
+        }
+    }
 }
