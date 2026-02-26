@@ -1,13 +1,7 @@
-use hello_world::{ User, show_user_details };
+use hello_world::{ authenticate, auth::models::User };
 
 fn main() {
-    let user_1: User = User::create_user(
-        String::from("shaon ali"),
-        String::from("hello@gmail.com"),
-        String::from("123456"),
-        26
-    );
-
-    show_user_details(user_1);
+    let user_1: User = User::create(String::from("shaon"), String::from("123456"));
+    authenticate(user_1);
     println!("Hello world");
 }
