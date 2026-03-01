@@ -1,7 +1,7 @@
-use hello_world::{ authenticate, auth::models::User };
+use hello_world::{ garden, hotel::front_of_the_house::hosting::seat_at_table };
 
 fn main() {
-    let user_1: User = User::create(String::from("shaon"), String::from("123456"));
-    authenticate(user_1);
     println!("Hello world");
+    garden::hello();
+    seat_at_table();
 }
